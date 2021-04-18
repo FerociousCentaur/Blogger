@@ -8,7 +8,13 @@
 {% for article in articles %}
 <h1>{{article.title}}</h1>
 <img src="{{article.thumbnail.url}}">
-<div id="content" onload="parser(this, {{article.content|linebreaks}})"></div>
+<div class="contentDiv">
+<div class="hiddenDiv" id="hiddendiv" >{{article.content}}</div>
+    <div class="showingDiv">
+
+    </div>
+</div>
+<!--<div id="content" onload="parser(this, {{article.content|linebreaks}});"></div>-->
 <div class="comment" id="c{{article.aid}}"></div>
 <form class="myForm" method="post">
             {% csrf_token %}
@@ -19,12 +25,14 @@
 
 <h5>{{article.author.user.username}}</h5>
 {% endfor %}
-<script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
-
+<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
-  function parser(x, content){
-  x.innerHTML = marked(content);
-  }
+  $( ".hiddenDiv" ).each(function() {
+  console.log($( this ).text());
+  console.log(marked($( this ).text()));
+  $( this ).html(marked($( this ).text()));
+});
   </script>
 <script>
    $('.myForm').submit(function(e) {
@@ -32,10 +40,59 @@
   var values = $(this).find("input:text").val();
 <!--  var commentbox = document.getElementById('c'+$(this).find('.aId').val());-->
   console.log($(this).find('.aId').val());
-  $('#c'+$(this).find('.aId').val()).append('<p>'+values+'</p>');
+  var uid = '#c'+$(this).find('.aId').val()
+
   console.log(values);
+
+
+  $.ajax({
+        type: 'POST',
+        url: '{% url 'comment' %}',
+        data: {
+                    'comment':values,
+                    'uid':uid
+        },
+        dataType: 'json',
+        success: function (data) {
+          if (data.status) {
+            $(uid).append('<p>'+values+'</p>');
+          }
+        }
+      });
 });
+
+$.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                function getCookie(name) {
+                    var cookieValue = null;
+                    if (document.cookie && document.cookie != '') {
+                        var cookies = document.cookie.split(';');
+                        for (var i = 0; i <
+                            cookies.length; i++) {
+                            var cookie = jQuery.trim(cookies[i]);
+                            // Does this cookie string begin with the name we want?
+                            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                break;
+                            }
+                        }
+                    }
+                    return cookieValue;
+                }
+                if (!(/^http:.*/.test(settings.url) ||
+                        /^https:.*/.test(settings.url))) { // Only send the token to relative URLs i.e. locally.
+                    xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                }
+            }
+        }); //now put normal ajax request </body>
+
+
 </script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+     <script>
+
+    </script>
+
+
 </body>
 </html>

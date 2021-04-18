@@ -16,7 +16,7 @@ class Article(models.Model):
     #tags = models.CharField(max_length=200)
 
     def __str__(self):
-        return f'{self.author}'
+        return f'{self.title[:10]+ " ["+self.author.first_name+"]"}'
 
 class Comment(models.Model):
     commenter = models.OneToOneField('Users.Profile', related_name='commenter', on_delete=models.CASCADE)
@@ -26,7 +26,7 @@ class Comment(models.Model):
     commentOn = models.OneToOneField(Article, related_name='commentOn', on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.commentOn.title[:10] + "  [" + self.likes.count() + "]"}'
+        return f'{self.commentOn.title[:10] + "  [" + str(self.likes.count()) + "]"}'
 
 class Notification(models.Model):
     type = models.CharField(max_length=30)

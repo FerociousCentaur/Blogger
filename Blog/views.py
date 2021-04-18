@@ -4,6 +4,7 @@ from .forms import ArtcleCreate_Update
 from .models import Article, Comment
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 def blogs_view(request):
     articles = Article.objects.all()
@@ -49,11 +50,12 @@ def update(request, uid):
         return HttpResponse('Bad Request')
 
 @login_required
+@csrf_exempt
 def add_comment(request):
     if request.is_ajax and request.method == "POST":
-        user = request.user
+        user = request.user.profile
         comment = request.POST.get('comment', None)
-        uid = request.POST.get('uid', None)
+        uid = request.POST.get('uid', None)[2:]
         Comment.objects.create(commentText=comment, commenter=user, commentOn=Article.objects.get(aid=uid))
         data = {
             'status': 'success'

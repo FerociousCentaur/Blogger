@@ -35,6 +35,7 @@ urlpatterns = [
     path('activate/<slug:uidb64>/<slug:token>/', activate, name='activate'),
     path('create/', b.create, name='create'),
     path('blogs_view/', b.blogs_view, name='blogs_view'),
+    path('comment/', b.add_comment, name='comment'),
     #path('create/', product_creation_page, name="create"),
     #path('store/', store_page, name="store"),
     #path('book/<str:uid>', render_single, name="single"),
