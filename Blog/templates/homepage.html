@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% for article in articles %}
+<h1>{{article.title}}</h1>
+<img src="{{article.thumbnail.url}}">
+<div id="content" onload="parser(this, {{article.content|linebreaks}})"></div>
+<div class="comment" id="c{{article.aid}}"></div>
+<form class="myForm" method="post">
+            {% csrf_token %}
+            <input type="text" placeholder="comment" required>
+            <input type="hidden" class="aId" value="{{article.aid}}">
+            <input type="submit" value="Submit">
+</form>
+
+<h5>{{article.author.user.username}}</h5>
+{% endfor %}
+<script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
+
+  <script>
+  function parser(x, content){
+  x.innerHTML = marked(content);
+  }
+  </script>
+<script>
+   $('.myForm').submit(function(e) {
+   e.preventDefault();
+  var values = $(this).find("input:text").val();
+<!--  var commentbox = document.getElementById('c'+$(this).find('.aId').val());-->
+  console.log($(this).find('.aId').val());
+  $('#c'+$(this).find('.aId').val()).append('<p>'+values+'</p>');
+  console.log(values);
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</body>
+</html>
