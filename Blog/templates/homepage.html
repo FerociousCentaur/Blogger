@@ -3,6 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <style>
+        #full-stars-example-two {
+  /* use display:inline-flex to prevent whitespace issues. alternatively, you can put all the children of .rating-group on a single line */
+  /* make hover effect work properly in IE */
+  /* hide radio inputs */
+  /* hide 'none' input from screenreaders */
+  /* set icon padding and size */
+  /* set default star color */
+  /* if any input is checked, make its following siblings grey */
+  /* make all stars orange on rating group hover */
+  /* make hovered input's following siblings grey on hover */
+}
+#full-stars-example-two .rating-group {
+  display: inline-flex;
+}
+#full-stars-example-two .rating__icon {
+  pointer-events: none;
+}
+#full-stars-example-two .rating__input {
+  position: absolute !important;
+  left: -9999px !important;
+}
+#full-stars-example-two .rating__input--none {
+  display: none;
+}
+#full-stars-example-two .rating__label {
+  cursor: pointer;
+  padding: 0 0.1em;
+  font-size: 2rem;
+}
+#full-stars-example-two .rating__icon--star {
+  color: orange;
+}
+#full-stars-example-two .rating__input:checked ~ .rating__label .rating__icon--star {
+  color: #ddd;
+}
+#full-stars-example-two .rating-group:hover .rating__label .rating__icon--star {
+  color: orange;
+}
+#full-stars-example-two .rating__input:hover ~ .rating__label .rating__icon--star {
+  color: #ddd;
+}
+
+.heart {
+  font-size: 25px;
+	color:red;
+}
+
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
 {% for article in articles %}
@@ -15,7 +65,15 @@
     </div>
 </div>
 <!--<div id="content" onload="parser(this, {{article.content|linebreaks}});"></div>-->
-<div class="comment" id="c{{article.aid}}"></div>
+<div class="comment" id="c{{article.aid}}">
+    {% for i in article.commentOn.all %}
+    <script>
+    </script>
+    <p>{{i.commentText}} {{i.commenter.first_name}} {{i.created_at}}</p>
+    <div>
+    <i id="l{{i.cid}}" class="heart fa fa-heart-o"></i>
+    </div>
+    {% endfor %}</div>
 <form class="myForm" method="post">
             {% csrf_token %}
             <input type="text" placeholder="comment" required>
@@ -24,13 +82,30 @@
 </form>
 
 <h5>{{article.author.user.username}}</h5>
+<div id="full-stars-example-two">
+    <div class="rating-group" id="r{{article.aid}}">
+        <input disabled checked class="rating__input rating__input--none" name="rating3" id="rating3-none" value="0" type="radio">
+        <label aria-label="1 star" class="rating__label" for="rating3-1"><i class="rating__icon rating__icon--star fa fa-star"></i></label>
+        <input onchange="myFunction(this);" class="rating__input" name="rating3" id="rating3-1" value="1" type="radio">
+        <label aria-label="2 stars" class="rating__label" for="rating3-2"><i class="rating__icon rating__icon--star fa fa-star"></i></label>
+        <input onchange="myFunction(this);" class="rating__input" name="rating3" id="rating3-2" value="2" type="radio">
+        <label aria-label="3 stars" class="rating__label" for="rating3-3"><i class="rating__icon rating__icon--star fa fa-star"></i></label>
+        <input onchange="myFunction(this);" class="rating__input" name="rating3" id="rating3-3" value="3" type="radio">
+        <label aria-label="4 stars" class="rating__label" for="rating3-4"><i class="rating__icon rating__icon--star fa fa-star"></i></label>
+        <input onchange="myFunction(this);" class="rating__input" name="rating3" id="rating3-4" value="4" type="radio">
+        <label aria-label="5 stars" class="rating__label" for="rating3-5"><i class="rating__icon rating__icon--star fa fa-star"></i></label>
+        <input onchange="myFunction(this);" class="rating__input" name="rating3" id="rating3-5" value="5" type="radio">
+    </div>
+  <p class="desc" style="font-family: sans-serif; font-size:0.9rem">Full stars<br/>
+    Must select a star value</p>
+</div>
 {% endfor %}
-<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script></script>
+<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
   $( ".hiddenDiv" ).each(function() {
-  console.log($( this ).text());
-  console.log(marked($( this ).text()));
+<!--  console.log($( this ).text());-->
+<!--  console.log(marked($( this ).text()));-->
   $( this ).html(marked($( this ).text()));
 });
   </script>
@@ -55,7 +130,7 @@
         dataType: 'json',
         success: function (data) {
           if (data.status) {
-            $(uid).append('<p>'+values+'</p>');
+            $(uid).append('<p>'+values+' {{user.profile.first_name}}'+'</p> '+new Date());
           }
         }
       });
@@ -90,8 +165,45 @@ $.ajaxSetup({
 </script>
 
      <script>
+function myFunction(x){
+var uid = x.parentNode.id;
 
+ $.ajax({
+        type: 'POST',
+        url: '{% url 'starRate' %}',
+        data: {
+                    'rate':x.value,
+                    'uid':uid
+        },
+        dataType: 'json',
+        success: function (data) {
+          if (data.status) {
+            $('#r'+uid).css('display:none');
+          }
+        }
+      });
+
+}
     </script>
+<script>
+    $(".heart.fa").click(function() {
+  $(this).toggleClass("fa-heart fa-heart-o");
+  console.log($(this).attr("id"));
+   $.ajax({
+        type: 'POST',
+        url: '{% url 'like' %}',
+        data: {
+                    'uid':$(this).attr("id")
+        },
+        dataType: 'json',
+        success: function (data) {
+          if (data.status) {
+            var uid = 'do nothing';
+          }
+        }
+      });
+});
+</script>
 
 
 </body>

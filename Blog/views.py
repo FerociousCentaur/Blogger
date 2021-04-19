@@ -67,16 +67,39 @@ def add_comment(request):
 @login_required
 def add_rm_like(request):
     if request.is_ajax and request.method == "POST":
-        user = request.user
-        liked = request.POST.get('liked', None)
+        user = request.user.profile
+        #liked = request.POST.get('liked', None)
         uid = request.POST.get('uid', None)
-        comment = Comment.objects.get(cid=uid)
-        if liked:
+        comment = Comment.objects.get(cid=uid[1:])
+        if user not in comment.likes.all():
             comment.likes.add(user)
             comment.save()
-        elif not liked:
+        else:
             comment.likes.remove(user)
             comment.save()
+        data = {
+            'status': 'success'
+        }
+        # calculate the result
+        # print(JsonResponse(data))
+        return JsonResponse(data)
+
+@csrf_exempt
+def starRate(request):
+    if request.is_ajax and request.method == "POST":
+        user = request.user.profile
+        rated = request.POST.get('rate', None)
+        uid = request.POST.get('uid', None)
+        article = Article.objects.get(aid=uid[1:])
+        print(float(article.rating))
+        if user not in article.raters.all():
+            print('inside')
+            cnt = int(article.raters.all().count())
+            article.rating = (((cnt*(float(article.rating)))+int(rated))/(cnt+1))
+            article.raters.add(user)
+            article.save()
+        else:
+            return HttpResponse('U have already rated')
         data = {
             'status': 'success'
         }
