@@ -39,6 +39,7 @@ urlpatterns = [
     path('starRate/', b.starRate, name='starRate'),
     path('like/', b.add_rm_like, name='like'),
     path('all/', b.categoryblog, name='all'),
+    path('replies/', b.replies, name='replies'),
     #path('create/', product_creation_page, name="create"),
     #path('store/', store_page, name="store"),
     #path('book/<str:uid>', render_single, name="single"),

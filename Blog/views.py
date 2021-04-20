@@ -113,6 +113,17 @@ def starRate(request):
         return JsonResponse(data)
 
 
+@csrf_exempt
+def replies(request):
+    if request.is_ajax and request.method == "POST":
+        cid = request.POST.get('cid', None)
+        data = {
+            'replies': list(Comment.objects.filter(replyTo=cid[1:]))
+        }
+        return JsonResponse(data)
+
+
+#todo adding replies to databse and showing
 
 
 
