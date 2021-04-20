@@ -6,9 +6,13 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
-def blogs_view(request):
+def blogs_view(request, uid):
+    article = Article.objects.get(aid=uid)
+    return render(request, 'homepage.html', {'article': article})
+
+def categoryblog(request):
     articles = Article.objects.all()
-    return render(request, 'homepage.html', {'articles': articles})
+    return render(request, 'categoryblogs.html', {'articles': articles})
 
 @login_required
 def create(request):
@@ -65,6 +69,7 @@ def add_comment(request):
         return JsonResponse(data)
 
 @login_required
+@csrf_exempt
 def add_rm_like(request):
     if request.is_ajax and request.method == "POST":
         user = request.user.profile

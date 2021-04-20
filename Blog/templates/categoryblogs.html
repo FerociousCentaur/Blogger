@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% for article in articles %}
+<a href="{% url 'blogs_view' uid=article.aid %}">
+<h1>{{article.title}}</h1>
+<img src="{{article.thumbnail.url}}">
+<!--<div id="content" onload="parser(this, {{article.content|linebreaks}});"></div>-->
+<h5>{{article.author.user.username}}</h5>
+
+</a>
+{% endfor %}
+</body>
+
+</html>

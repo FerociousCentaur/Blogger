@@ -1,3 +1,4 @@
+{% load custom_tag %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -55,7 +56,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
-{% for article in articles %}
+
 <h1>{{article.title}}</h1>
 <img src="{{article.thumbnail.url}}">
 <div class="contentDiv">
@@ -65,15 +66,10 @@
     </div>
 </div>
 <!--<div id="content" onload="parser(this, {{article.content|linebreaks}});"></div>-->
+<button id="appender"><span><i style='font-size:24px' class='fa fa-comments-o'></i></span><span id="commentcount">&nbsp;{{article.commentOn.all.count}}</span></button>
 <div class="comment" id="c{{article.aid}}">
-    {% for i in article.commentOn.all %}
-    <script>
-    </script>
-    <p>{{i.commentText}} {{i.commenter.first_name}} {{i.created_at}}</p>
-    <div>
-    <i id="l{{i.cid}}" class="heart fa fa-heart-o"></i>
-    </div>
-    {% endfor %}</div>
+
+</div>
 <form class="myForm" method="post">
             {% csrf_token %}
             <input type="text" placeholder="comment" required>
@@ -99,7 +95,7 @@
   <p class="desc" style="font-family: sans-serif; font-size:0.9rem">Full stars<br/>
     Must select a star value</p>
 </div>
-{% endfor %}
+
 <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
@@ -120,21 +116,7 @@
   console.log(values);
 
 
-  $.ajax({
-        type: 'POST',
-        url: '{% url 'comment' %}',
-        data: {
-                    'comment':values,
-                    'uid':uid
-        },
-        dataType: 'json',
-        success: function (data) {
-          if (data.status) {
-            $(uid).append('<p>'+values+' {{user.profile.first_name}}'+'</p> '+new Date());
-          }
-        }
-      });
-});
+
 
 $.ajaxSetup({
             beforeSend: function(xhr, settings) {
@@ -161,7 +143,22 @@ $.ajaxSetup({
             }
         }); //now put normal ajax request </body>
 
-
+  $.ajax({
+        type: 'POST',
+        url: '{% url 'comment' %}',
+        data: {
+                    'comment':values,
+                    'uid':uid
+        },
+        dataType: 'json',
+        success: function (data) {
+          if (data.status) {
+            $(uid).append('<p>'+values+' {{user.profile.first_name}}'+'</p> '+new Date());
+            $('#commentcount').html(parseInt($('#commentcount').text(),10)+1);
+          }
+        }
+      });
+});
 </script>
 
      <script>
@@ -186,8 +183,37 @@ var uid = x.parentNode.id;
 }
     </script>
 <script>
-    $(".heart.fa").click(function() {
+$("#appender").click(function(){
+console.log('inside1');
+if($.trim($(".comment").html())==''){
+$(".comment").html("{% for i in article.commentOn.all %}<p>{{i.commentText}} {{i.commenter.first_name}} {{i.created_at}}</p><div>{% if user.profile in i.likes.all %}<i id='l{{i.cid}}' class='heart fa fa-heart'></i>{% else %}<i id='u{{i.cid}}' class='heart fa fa-heart-o'></i>{% endif %}<span class='likecount'>{{i.likes.all.count}}</span><div class='replybar'><span class="replycount">{{i.cid|get_reply_count}}</span><div class="replies"></div></div><div><button class='replyb'>Reply</button></div></div>{% endfor %}");
+}
+else{
+console.log('inside2');
+$(".comment").html("");
+}
+
+});
+
+$(document).on('click',".replyb", function(e) {
+  e.preventDefault();
+console.log('inside1');
+$(this).parent().html("<input type='text'><button>Reply</button>");
+});
+
+
+$(document).on('click',".heart.fa", function(e) {
+  e.preventDefault();
   $(this).toggleClass("fa-heart fa-heart-o");
+
+  var counter = $(this).parent().find('.likecount');
+  if($(this).hasClass('fa-heart')){
+  counter.html(parseInt(counter.text(),10)+1);
+  }
+  else{
+  counter.html(parseInt(counter.text(),10)-1);
+  }
+
   console.log($(this).attr("id"));
    $.ajax({
         type: 'POST',
@@ -203,8 +229,33 @@ var uid = x.parentNode.id;
         }
       });
 });
-</script>
+<!--    $(".heart.fa").click(function() {-->
+<!--  $(this).toggleClass("fa-heart fa-heart-o");-->
+<!--  console.log($(this).attr("id"));-->
+<!--   $.ajax({-->
+<!--        type: 'POST',-->
+<!--        url: '{% url 'like' %}',-->
+<!--        data: {-->
+<!--                    'uid':$(this).attr("id")-->
+<!--        },-->
+<!--        dataType: 'json',-->
+<!--        success: function (data) {-->
+<!--          if (data.status) {-->
+<!--            var uid = 'do nothing';-->
+<!--          }-->
+<!--        }-->
+<!--      });-->
+<!--});-->
 
+
+
+
+
+
+<!--$("#appender").click(function(){-->
+<!--    console.log('inside');-->
+<!--  });-->
+</script>
 
 </body>
 </html>

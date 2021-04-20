@@ -25,11 +25,12 @@ class Comment(models.Model):
     cid = models.UUIDField(default=uuid.uuid4, editable=False)
     commentText = models.TextField()
     likes = models.ManyToManyField('Users.Profile', related_name='likes')
-    commentOn = models.ForeignKey(Article, related_name='commentOn', on_delete=models.CASCADE)
+    commentOn = models.ForeignKey(Article, related_name='commentOn', on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
+    replyTo = models.UUIDField(null=True, blank=True)
 
     def __str__(self):
-        return f'{self.commentOn.title[:10] + "  [" + str(self.likes.count()) + "]"}'
+        return f'{self.commenter.first_name + "  [" + str(self.likes.count()) + "]"}'
 
 class Notification(models.Model):
     type = models.CharField(max_length=30)
