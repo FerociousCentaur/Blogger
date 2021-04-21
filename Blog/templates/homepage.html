@@ -51,7 +51,12 @@
   font-size: 25px;
 	color:red;
 }
-
+<!--.replies {-->
+<!--    margin-left: 2%;-->
+<!--}-->
+.parentreplies{
+margin-left: 10%;
+}
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
@@ -186,7 +191,7 @@ var uid = x.parentNode.id;
 $("#appender").click(function(){
 console.log('inside1');
 if($.trim($(".comment").html())==''){
-$(".comment").html("{% for i in article.commentOn.all %}<p>{{i.commentText}} {{i.commenter.first_name}} {{i.created_at}}</p><div>{% if user.profile in i.likes.all %}<i id='l{{i.cid}}' class='heart fa fa-heart'></i>{% else %}<i id='u{{i.cid}}' class='heart fa fa-heart-o'></i>{% endif %}<span class='likecount'>{{i.likes.all.count}}</span><div class='replybar'><button id='r{{i.cid}}' class='replyinputopen'><span class='replycount'>{{i.cid|get_reply_count}}</span>&nbsp;View Replies</button><div class='replies'></div></div><div><button class='replyb'>Reply</button></div></div>{% endfor %}");
+$(".comment").html("{% for i in article.commentOn.all %}<p>{{i.commentText}} {{i.commenter.first_name}} {{i.created_at}}</p><div>{% if user.profile in i.likes.all %}<i id='l{{i.cid}}' class='heart fa fa-heart'></i>{% else %}<i id='u{{i.cid}}' class='heart fa fa-heart-o'></i>{% endif %}<span class='likecount'>{{i.likes.all.count}}</span><div class='replybar'><button id='r{{i.cid}}' class='replyinputopen'><span class='replycount'>{{i.cid|get_reply_count}}</span>&nbsp;View Replies</button><div class='replies parentreplies' data-siteid='0'></div></div><div><button class='replyb'>Reply</button></div></div>{% endfor %}");
 }
 else{
 console.log('inside2');
@@ -198,18 +203,63 @@ $(".comment").html("");
 $(document).on('click',".replyb", function(e) {
   e.preventDefault();
 console.log('inside1');
-$(this).parent().html("<input type='text'><button class='replyinputopen'>Reply</button>");
+$(this).parent().html("<div class='replyinput'><input type='text' class='enterhere'><button class='savereply'>Reply</button></div>");
 });
+
+
+$(document).on('click',".savereply", function(e) {
+  e.preventDefault();
+  var thisvar = $(this).parent()
+  var reply = $(this).parent().find('.enterhere').val()
+  console.log(reply);
+  console.log($.trim(reply));
+  var uid = $(this).parent().parent().parent().find('.replyinputopen').attr('id');
+  console.log(uid);
+  if($.trim(reply)==''){
+  alert('cant save empty reply');
+
+  }
+  else{
+  $.ajax({
+        type: 'POST',
+        url: '{% url 'savereply' %}',
+        data: {
+                    'cid':uid,
+                    'reply':reply
+        },
+        dataType: 'json',
+        success: function (data) {
+          if (data.replies) {
+            console.log('success');
+            thisvar.parent().parent().find('.replies').append("<p>"+data.replies+"</p>");
+          }
+        }
+      });
+  }
+
+
+  });
 
 $(document).on('click',".replyinputopen", function(e) {
   e.preventDefault();
 console.log('inside1');
 var id= $(this).attr('id');
+var box = $(this).parent().find('.replies')
+var parentbox = $(this).closest('.parentreplies')
+<!--parent().find('.parentreplies')-->
 console.log(id);
+
+
 if($(this).find('.replycount').text()==='0'){
-$(this).parent().find('.replies').html('Nothing To show');
+if($.trim(box.html())==''){
+box.html('Nothing To show');
 }
 else{
+box.html('');
+}
+
+}
+else if($.trim(box.html())==''){
  $.ajax({
         type: 'POST',
         url: '{% url 'replies' %}',
@@ -218,12 +268,32 @@ else{
         },
         dataType: 'json',
         success: function (data) {
-          if (data.status) {
-            var uid = 'do nothing';
+          if (data.replies) {
+<!--          console.log(JSON.parse(data.replies));-->
+          actual = JSON.parse(data.replies);
+<!--          for(var x in actual){-->
+<!--          console.log(x,actual[x].fields.commentText);-->
+<!--          }-->
+            var htmldata=""
+            for(var x in actual){
+            htmldata+="<p>"+actual[x].fields.commentText+"  "+actual[x].fields.commenter.first_name +"  "+actual[x].fields.created_at+"</p> <div> <div class='replybar'> <button id=r"+actual[x].fields.cid+" class='replyinputopen'> &nbsp;View Replies</button> <div class='replies'></div> </div> <div><button class='replyb'>Reply</button></div> </div>"
+            }
+
+
+            box.html(htmldata);
+
+            var aller = parentbox.parent().find('.replies')
+            var mrg = 100/aller.length;
+            aller.css('marginLeft', mrg + '%');
           }
         }
       });
+
+
      }
+    else{
+    box.html('');
+    }
 });
 
 

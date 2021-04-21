@@ -112,13 +112,28 @@ def starRate(request):
         # print(JsonResponse(data))
         return JsonResponse(data)
 
+from django.core.serializers import serialize
 
 @csrf_exempt
 def replies(request):
     if request.is_ajax and request.method == "POST":
         cid = request.POST.get('cid', None)
         data = {
-            'replies': list(Comment.objects.filter(replyTo=cid[1:]))
+            'replies': serialize("json", Comment.objects.filter(replyTo=cid[1:]))
+        }
+        #print(data)
+        #print(JsonResponse(data))
+        return JsonResponse(data)
+
+@csrf_exempt
+def savereply(request):
+    if request.is_ajax and request.method == "POST":
+        user = request.user.profile
+        cid = request.POST.get('cid', None)
+        reply = request.POST.get('reply', None)
+        Comment.objects.create(commentText=reply, commenter=user, replyTo=cid[1:])
+        data = {
+            'replies': reply
         }
         return JsonResponse(data)
 
