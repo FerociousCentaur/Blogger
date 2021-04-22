@@ -8,3 +8,12 @@ class ArtcleCreate_Update(forms.ModelForm):
     class Meta:
         model = Article
         fields = ('title', 'thumbnail',)
+
+class Artcle_Update(forms.ModelForm):
+    thumbnail = forms.ImageField(required=False)
+    content = forms.CharField(widget=PagedownWidget())
+    published = forms.BooleanField(initial=True, label="Publish")
+
+    class Meta:
+        model = Article
+        fields = ('title', )
