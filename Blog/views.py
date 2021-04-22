@@ -25,7 +25,7 @@ def create(request):
             author = request.user.profile
             published = form.cleaned_data['published']
             Article.objects.create(title=title, content=content, thumbnail=thumbnail, author=author, published=published)
-            return redirect('blogs_view')
+            return redirect('all')
 
     form = ArtcleCreate_Update()
     return render(request, 'create_blog.html', {'form':form})
@@ -33,7 +33,7 @@ def create(request):
 @login_required
 def update(request, uid):
     blog = Article.objects.filter(aid=uid)
-    if blog and request.user== blog[0].author:
+    if blog and request.user.profile == blog[0].author:
         blog = blog[0]
         if request.method == 'POST':
             form = ArtcleCreate_Update(request.POST, request.FILES)
@@ -48,7 +48,7 @@ def update(request, uid):
                 blog.published = published
                 blog.save()
                 return redirect('blogs_view')
-        form = ArtcleCreate_Update(instance=blog)
+        form = ArtcleCreate_Update(instance=blog, initial={'content': blog.content})
         return render(request, 'create_blog.html', {'form': form})
     else:
         return HttpResponse('Bad Request')

@@ -1,9 +1,12 @@
+{% load markdown_deux_tags %}
 {% load custom_tag %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
     <style>
         #full-stars-example-two {
   /* use display:inline-flex to prevent whitespace issues. alternatively, you can put all the children of .rating-group on a single line */
@@ -51,21 +54,30 @@
   font-size: 25px;
 	color:red;
 }
-<!--.replies {-->
-<!--    margin-left: 2%;-->
-<!--}-->
+.replies {
+    background:rgba(0, 0, 0, 0.02);
+    border-left:1px solid grey;
+    padding-right: 5px;
+}
 .parentreplies{
 margin-left: 10%;
+
 }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
+<div class="container">
+
+
 
 <h1>{{article.title}}</h1>
-<img src="{{article.thumbnail.url}}">
+    <div class="text-center">
+        <img src="{{article.thumbnail.url}}" height="450">
+    </div>
+
 <div class="contentDiv">
-<div class="hiddenDiv" id="hiddendiv" >{{article.content}}</div>
+<div class="hiddenDiv" id="hiddendiv" >{{article.content|markdown:"default"}}</div>
     <div class="showingDiv">
 
     </div>
@@ -82,7 +94,7 @@ margin-left: 10%;
             <input type="submit" value="Submit">
 </form>
 
-<h5>{{article.author.user.username}}</h5>
+<h5>{{article.author.user.username}}{% ifequal user.profile article.author %}<a href="{% url 'update' uid=article.aid  %}">Update</a>{% endifequal %}</h5>
 <div id="full-stars-example-two">
     <div class="rating-group" id="r{{article.aid}}">
         <input disabled checked class="rating__input rating__input--none" name="rating3" id="rating3-none" value="0" type="radio">
@@ -100,14 +112,28 @@ margin-left: 10%;
   <p class="desc" style="font-family: sans-serif; font-size:0.9rem">Full stars<br/>
     Must select a star value</p>
 </div>
-
+</div>
 <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
   $( ".hiddenDiv" ).each(function() {
 <!--  console.log($( this ).text());-->
 <!--  console.log(marked($( this ).text()));-->
-  $( this ).html(marked($( this ).text()));
+<!--  $( this ).html(marked($( this ).text()));-->
+});
+
+$(window).on('scroll',function() {
+    var hT = $('.myForm').offset().top,
+    hH = $('.myForm').outerHeight(),
+    wH = $(window).height(),
+    wS = $(this).scrollTop();
+    if (wS > ((hT+hH-wH)-500)){
+        console.log('comment box section arrived! eh');
+        // This detaches the scroll so doStuff() won't run more than once
+        $(window).off('scroll');
+        doStuff();
+    }
 });
   </script>
 <script>

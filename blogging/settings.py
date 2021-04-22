@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'pagedown.apps.PagedownConfig',
     'Users',
     'Blog',
+    'markdown_deux',
 ]
 
 MIDDLEWARE = [

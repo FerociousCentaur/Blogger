@@ -34,6 +34,7 @@ urlpatterns = [
     path('sent/', activation_sent_view, name="activation_sent"),
     path('activate/<slug:uidb64>/<slug:token>/', activate, name='activate'),
     path('create/', b.create, name='create'),
+    path('update/<str:uid>/', b.update, name='update'),
     path('blogs_view/<str:uid>/', b.blogs_view, name='blogs_view'),
     path('comment/', b.add_comment, name='comment'),
     path('starRate/', b.starRate, name='starRate'),
