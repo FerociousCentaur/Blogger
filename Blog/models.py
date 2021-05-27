@@ -10,7 +10,7 @@ class Article(models.Model):
     content = models.TextField()
     thumbnail = models.ImageField(upload_to='images/')
     author = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='author')
-    rating = models.CharField(max_length=3, null=True)
+    rating = models.CharField(max_length=3, default=0)
     raters = models.ManyToManyField('Users.Profile', related_name='raters')
     published = models.BooleanField(default=True)
     category = models.CharField(max_length=50, null=True)

@@ -64,6 +64,18 @@
 margin-left: 10%;
 
 }
+
+.modal-dialog,
+.modal-content {
+    /* 80% of window height */
+    height: 80%;
+}
+
+.modal-body {
+    /* 100% = dialog height, 120px = header + footer */
+    max-height: calc(100% - 120px);
+    overflow-y: scroll;
+}
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
@@ -76,7 +88,7 @@ margin-left: 10%;
 
 <h1>{{article.title}}</h1>
     <div class="text-center">
-        <img src="{{article.thumbnail.url}}" height="450">
+        <img src="{{article.thumbnail.url}}" style="width:50%;">
     </div>
 
 <div class="contentDiv">
@@ -86,7 +98,7 @@ margin-left: 10%;
     </div>
 </div>
 <!--<div id="content" onload="parser(this, {{article.content|linebreaks}});"></div>-->
-<button id="appender"><span><i style='font-size:24px' class='fa fa-comments-o'></i></span><span id="commentcount">&nbsp;{{article.commentOn.all.count}}</span></button>
+<button id="appender"><span><i style='font-size:24px' class='fa fa-comments-o'></i></span><span id="commentcount">&nbsp;{{article|get_comment_count}}</span></button>
 <div class="comment" id="c{{article.aid}}">
 
 </div>
@@ -222,7 +234,7 @@ var uid = x.parentNode.id;
 $("#appender").click(function(){
 console.log('inside1');
 if($.trim($(".comment").html())==''){
-$(".comment").html("{% for i in article.commentOn.all %}<p>{{i.commentText}} {{i.commenter.first_name}} {{i.created_at}}</p><div>{% if user.profile in i.likes.all %}<i id='l{{i.cid}}' class='heart fa fa-heart'></i>{% else %}<i id='u{{i.cid}}' class='heart fa fa-heart-o'></i>{% endif %}<span class='likecount'>{{i.likes.all.count}}</span><div class='replybar'><button id='r{{i.cid}}' class='replyinputopen'><span class='replycount'>{{i.cid|get_reply_count}}</span>&nbsp;View Replies</button><div class='replies parentreplies' data-siteid='0'></div></div><div><button class='replyb'>Reply</button></div></div>{% endfor %}");
+$(".comment").html("{% for i in article.commentOn.all %}{% if not i.replyTo %}<p>{{i.commentText}} {{i.commenter.first_name}} {{i.created_at}}</p><div>{% if user.profile in i.likes.all %}<i id='l{{i.cid}}' class='heart fa fa-heart'></i>{% else %}<i id='u{{i.cid}}' class='heart fa fa-heart-o'></i>{% endif %}<span class='likecount'>{{i.likes.all.count}}</span><div class='replybar'><button id='r{{i.cid}}' class='replyinputopen'><span class='replycount'>{{i.cid|get_reply_count}}</span>&nbsp;View Replies</button><div class='replies parentreplies' data-siteid='0'></div></div><div><button class='replyb'>Reply</button></div></div>{% endif %}{% endfor %}");
 }
 else{
 console.log('inside2');
@@ -231,6 +243,7 @@ $(".comment").html("");
 
 });
 
+<!--{% if not user.profile.is_prohibited %}{% endif %}-->
 $(document).on('click',".replyb", function(e) {
   e.preventDefault();
 console.log('inside1');
