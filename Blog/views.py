@@ -6,6 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
+
+
 def blogs_view(request, uid):
     article = Article.objects.get(aid=uid)
     return render(request, 'homepage.html', {'article': article})

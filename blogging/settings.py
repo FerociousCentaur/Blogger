@@ -133,11 +133,26 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'login'
 
-import dj_database_url
-prod_db  =  dj_database_url.config(conn_max_age=500)
-DATABASES['default'].update(prod_db)
+try:
+    import dj_database_url
+
+    prod_db = dj_database_url.config(conn_max_age=500)
+    DATABASES['default'].update(prod_db)
+except ModuleNotFoundError:
+    pass
+
+
+
+
+EMAIL_BACKEND ='django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'workfencesender@gmail.com'
+DEFAULT_FROM_EMAIL = 'workfencesender@gmail.com'
+EMAIL_HOST_PASSWORD = 'ylsibfisennktkcy'

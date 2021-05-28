@@ -20,6 +20,26 @@ from django.contrib.auth import update_session_auth_hash
 from .forms import SignUpForm, loginform, UserForgotPasswordForm, UserPasswordResetForm
 from .tokens import account_activation_token, password_reset_token
 
+
+
+from django.conf import settings
+from django.core.mail import send_mail
+
+
+def mailer(receiver, name, path, sub, msg):
+
+
+    subject, from_email, to = sub[0], settings.EMAIL_HOST_USER, receiver
+
+    html_content = render_to_string(path, {'Pname': name, 'uid': sub[1], 'message': msg})  # render with dynamic value
+    text_content = strip_tags(html_content)  # Strip the html tag. So people can see the pure text at least.
+
+    # create the email, and attach the HTML version as well.
+    msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+    msg.attach_alternative(html_content, "text/html")
+    msg.send()
+
+
 @login_required
 def home_view(request):
     return render(request, 'home.html')
